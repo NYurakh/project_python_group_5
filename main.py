@@ -5,6 +5,7 @@ import sys
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import NestedCompleter
+from rich.console import Console
 
 from cli import commands
 from cli.parser import parse_input
@@ -18,10 +19,12 @@ def main():
     if isinstance(sys.stdout, io.TextIOWrapper):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
+    console = Console()
+
     book = load_data()
 
-    print("Welcome to the assistant bot!")
-    print(commands.help_command([], book))
+    console.print("[bold]Welcome to the assistant bot![/]")
+    console.print(commands.help_command([], book))
 
     # Auto completer of commands
     completer = NestedCompleter.from_nested_dict(
@@ -41,10 +44,10 @@ def main():
         entry = commands.COMMANDS.get(command)
 
         if entry is None:
-            print(commands.invalid_command())
+            console.print(commands.invalid_command())
             continue
 
-        print(entry.handler(args, book))
+        console.print(entry.handler(args, book))
 
         if command in commands.EXIT_COMMANDS:
             save_data(book)

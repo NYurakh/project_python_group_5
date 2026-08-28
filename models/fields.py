@@ -58,6 +58,7 @@ class Phone(Field):
             and phone_number.isdigit()
         )
 
+
 class Email(Field):
     """Field for the contact's email address with format validation."""
 
