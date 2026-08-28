@@ -147,7 +147,7 @@ def show_birthday(args, book: AddressBook):
 
 @input_error
 def birthdays(args, book: AddressBook):
-    """Shows birthdays that will occur during the next week."""
+    """Shows birthdays that will occur during the next week.""" # TODO: change if needed
 
     if args:
         raise ValueError("The birthdays command does not take arguments.")
@@ -161,6 +161,40 @@ def birthdays(args, book: AddressBook):
         f"{item['name']}: {item['congratulation_date']}" for item in upcoming_birthdays
     )
 
+
+@input_error
+def add_address(args, book: AddressBook):
+
+    if len(args)<2:
+        raise ValueError("Provide contact's name and address")
+
+    name, *address_parts = args
+
+    record = book.find(name)
+
+    if record is None:
+        raise KeyError
+
+    record.add_address("".join(address_parts))
+
+    return "Address added"
+
+@input_error
+def add_email(args, book: AddressBook):
+
+    if len(args)<2:
+            raise ValueError("Provide contact's name and email")
+
+    name, email, *_ = args
+
+    record = book.find(name)
+
+    if record is None:
+        raise KeyError
+
+    record.add_email(email)
+
+    return "Email added"
 
 # endregion
 

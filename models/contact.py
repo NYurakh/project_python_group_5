@@ -1,6 +1,6 @@
 """Record: a single contact (name, phones, birthday)."""
 
-from models.fields import Birthday, Name, Phone
+from models.fields import Address, Birthday, Email, Name, Phone
 
 
 class Record:
@@ -10,6 +10,18 @@ class Record:
         self.name = Name(name)
         self.phones: list[Phone] = []
         self.birthday: Birthday | None = None
+        self.email: Email | None = None
+        self.address: Address | None = None
+
+    def add_email(self, email: str) -> None:
+        """Set/replace email"""
+
+        self.email = Email(email)
+
+    def add_address(self, address: str) -> None:
+        """Set/replace address"""
+
+        self.address = Address(address)
 
     def add_birthday(self, birthday: str) -> None:
         self.birthday = Birthday(birthday)
@@ -50,8 +62,19 @@ class Record:
         return None
 
     def __str__(self) -> str:
-        return (
-            f"Contact name: {self.name.value}, "
-            f"phones: {'; '.join(p.value for p in self.phones)}"
-        )
+        parts = [f"Contact's name: {self.name.value}"]
+
+        if self.phones:
+            parts.append("phones: " + "; ".join(p.value for p in self.phones))
+
+        if self.email:
+            parts.append(f"email: {self.email.value}")
+
+        if self.address:
+            parts.append(f"address: {self.address.value}")
+
+        if self.birthday:
+            parts.append(f"birthday: {self.birthday.value.strftime('%d.%m.%Y')}")
+
+        return ", ".join(parts)
 

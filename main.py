@@ -1,5 +1,8 @@
 """Entry point: runs the assistant bot loop."""
 
+import io
+import sys
+
 from cli import commands
 from cli.parser import parse_input
 from storage.storage import load_data, save_data
@@ -7,6 +10,10 @@ from storage.storage import load_data, save_data
 
 def main():
     """Run the assistant bot loop."""
+
+    # Messages contain Cyrillic, which crashes on consoles with a legacy codepage
+    if isinstance(sys.stdout, io.TextIOWrapper):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
     book = load_data()
 
@@ -39,6 +46,12 @@ def main():
 
         elif command == "add-birthday":
             print(commands.add_birthday(args, book))
+
+        elif command == "add-email":
+            print(commands.add_email(args, book))
+
+        elif command == "add-address":
+            print(commands.add_address(args, book))
 
         elif command == "show-birthday":
             print(commands.show_birthday(args, book))
