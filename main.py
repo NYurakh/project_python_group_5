@@ -18,6 +18,7 @@ def main():
     book = load_data()
 
     print("Welcome to the assistant bot!")
+    print(commands.help_command([], book))
 
     while True:
         user_input = input("Enter a command: ")

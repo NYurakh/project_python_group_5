@@ -220,6 +220,19 @@ def close_command(_args, _book):
 
     return "Good bye!"
 
+@input_error
+def help_command(_arts, _book):
+    """Return the table of all available commands."""
+
+    width = max(len(command.usage) for command in COMMANDS.values())
+
+    rows = [
+        f"{command.usage:<{width}} {command.description}"
+        for command in COMMANDS.values()
+    ]
+
+    return "Available commands: \n" + "\n".join(rows)
+
 
 def invalid_command():
     """Return a message for an unknown command."""
@@ -250,6 +263,7 @@ COMMANDS: dict[str, Command] = {
     "add-birthday": Command(add_birthday, "add-birthday <ім'я> <DD.MM.YYYY>", "Додати день народження"),
     "show-birthday": Command(show_birthday, "show-birthday <ім'я>", "Показати день народження"),
     "birthdays": Command(birthdays, "birthdays", "Найближчі дні народження"),
+    "help": Command(help_command, "help", "Показати це меню"),
     "exit": Command(close_command, "exit", "Вийти зі збереженням"),
     "close": Command(close_command, "close", "Вийти зі збереженням"),
     }
