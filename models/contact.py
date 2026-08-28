@@ -61,6 +61,26 @@ class Record:
 
         return None
 
+    def matches(self, query: str) -> bool:
+        """Checks whether the query occurs in any of the record's fields."""
+
+        query =query.casefold()
+
+        values = [self.name.value]
+        values += [phone.value for phone in self.phones]
+
+        if self.email:
+            values.append(self.email.value)
+
+        if self.address:
+            values.append(self.address.value)
+
+        if self.birthday:
+            values.append(self.birthday.value.strftime("%d.%m.%Y"))
+
+        return any(query in value.casefold() for value in values)
+
+
     def __str__(self) -> str:
         parts = [f"Contact's name: {self.name.value}"]
 

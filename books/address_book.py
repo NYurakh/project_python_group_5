@@ -19,6 +19,11 @@ class AddressBook(UserDict[str, Record]):
 
         return self.data.get(name)
 
+    def search(self, query: str) -> list[Record]:
+        """Returns all records matching the query in any field."""
+
+        return [record for record in self.data.values() if record.matches(query)]
+
     def delete(self, name: str) -> None:
         """Deletes a record by name"""
 

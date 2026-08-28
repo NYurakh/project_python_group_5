@@ -110,6 +110,22 @@ def show_all(args, book: AddressBook):
 
     return "\n".join(str(record) for record in book.data.values())
 
+@input_error
+def search_contacts(args, book: AddressBook):
+    """Searches contacts by any field."""
+
+    if not args:
+        raise IndexError
+
+    query = " ".join(args)
+
+    found = book.search(query)
+
+    if not found:
+        return f"No contacts found for '{query}.'"
+
+    return "\n".join(str(record) for record in found)
+
 
 @input_error
 def add_birthday(args, book: AddressBook):
@@ -258,6 +274,7 @@ COMMANDS: dict[str, Command] = {
     "change": Command(change_contact, "change <ім'я> <старий> <новий>", "Замінити телефон"),
     "phone": Command(show_phone, "phone <ім'я>", "Показати телефони контакту"),
     "all": Command(show_all, "all", "Показати всі контакти"),
+    "search": Command(search_contacts, "search <текст>", "Знайти контакти за будь-яким полем"),
     "add-email": Command(add_email, "add-email <ім'я> <email>", "Додати email"),
     "add-address": Command(add_address, "add-address <ім'я> <адреса>", "Додати адресу"),
     "add-birthday": Command(add_birthday, "add-birthday <ім'я> <DD.MM.YYYY>", "Додати день народження"),
