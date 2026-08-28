@@ -175,7 +175,7 @@ def add_address(args, book: AddressBook):
     if record is None:
         raise KeyError
 
-    record.add_address("".join(address_parts))
+    record.add_address(" ".join(address_parts))
 
     return "Address added"
 
