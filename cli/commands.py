@@ -1,6 +1,8 @@
 """Command handlers plus the input_error decorator that wraps them."""
 
+from dataclasses import dataclass
 from functools import wraps
+from typing import Callable
 
 from books.address_book import AddressBook
 from models.contact import Record
@@ -97,8 +99,11 @@ def show_phone(args, book: AddressBook):
 
 
 @input_error
-def show_all(book: AddressBook):
+def show_all(args, book: AddressBook):
     """Return all saved contacts"""
+
+    if args:
+        raise ValueError("The all command does not take arguments.")
 
     if not book.data:
         return "No contacts found."
@@ -203,14 +208,14 @@ def add_email(args, book: AddressBook):
 
 
 @input_error
-def hello_command():
+def hello_command(_args, _book):
     """Handle hello command."""
 
     return "How can I help you?"
 
 
 @input_error
-def close_command():
+def close_command(_args, _book):
     """Handles close command"""
 
     return "Good bye!"
@@ -223,3 +228,32 @@ def invalid_command():
 
 
 # endregion
+
+# region --- Command registry ---
+
+@dataclass(frozen=True)
+class Command:
+    """A single CLI command: its handler, usage hint and description."""
+
+    handler: Callable[[list[str], AddressBook], str]
+    usage: str
+    description: str
+
+COMMANDS: dict[str, Command] = {
+    "hello": Command(hello_command, "hello", "Привітання"),
+    "add": Command(add_contact, "add <ім'я> <телефон>", "Додати контакт або телефон"),
+    "change": Command(change_contact, "change <ім'я> <старий> <новий>", "Замінити телефон"),
+    "phone": Command(show_phone, "phone <ім'я>", "Показати телефони контакту"),
+    "all": Command(show_all, "all", "Показати всі контакти"),
+    "add-email": Command(add_email, "add-email <ім'я> <email>", "Додати email"),
+    "add-address": Command(add_address, "add-address <ім'я> <адреса>", "Додати адресу"),
+    "add-birthday": Command(add_birthday, "add-birthday <ім'я> <DD.MM.YYYY>", "Додати день народження"),
+    "show-birthday": Command(show_birthday, "show-birthday <ім'я>", "Показати день народження"),
+    "birthdays": Command(birthdays, "birthdays", "Найближчі дні народження"),
+    "exit": Command(close_command, "exit", "Вийти зі збереженням"),
+    "close": Command(close_command, "close", "Вийти зі збереженням"),
+    }
+
+EXIT_COMMANDS = {"exit", "close"}
+
+#endregion
