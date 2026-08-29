@@ -9,7 +9,7 @@ from prompt_toolkit.completion import WordCompleter
 from rich import print as _rprint
 from rich.console import RenderableType
 
-from books.address_book import AddressBook
+from app_context import AppContext
 from cli import view
 from models.contact import Record, SEARCHABLE_FIELDS
 from models.fields import Address, Birthday, Email, Phone
@@ -98,8 +98,10 @@ def _prompt_phones(existing: list) -> list[str]:
 
 
 @command_error_handler
-def add_contact(args, book: AddressBook):
+def add_contact(args, context: AppContext):
     """Adds a contact to the address book interactively."""
+
+    book = context.address_book
 
     if args:
         raise ValueError("The add-contact command does not take arguments.")
@@ -139,9 +141,10 @@ def add_contact(args, book: AddressBook):
 
 
 @command_error_handler
-def edit_contact(args, book: AddressBook):
+def edit_contact(args, context: AppContext):
     """Edits an existing contact interactively, pre-filling current values."""
 
+    book = context.address_book
     name = " ".join(args) if args else _prompt_validated("Contact name: ")
 
     record = book.find(name)
@@ -208,9 +211,10 @@ def edit_contact(args, book: AddressBook):
 
 
 @command_error_handler
-def edit_contact_phones(args, book: AddressBook):
+def edit_contact_phones(args, context: AppContext):
     """Edits only the phone numbers of an existing contact."""
 
+    book = context.address_book
     name = " ".join(args) if args else _prompt_validated("Contact name: ")
 
     record = book.find(name)
@@ -231,8 +235,10 @@ def edit_contact_phones(args, book: AddressBook):
 
 
 @command_error_handler
-def change_contact(args, book: AddressBook):
+def change_contact(args, context: AppContext):
     """Changes a contact's phone number."""
+
+    book = context.address_book
 
     if len(args) < 3:
         raise ValueError("Give me name, old phone and new phone please.")
@@ -250,8 +256,10 @@ def change_contact(args, book: AddressBook):
 
 
 @command_error_handler
-def show_phone(args, book: AddressBook):
+def show_phone(args, context: AppContext):
     """Shows a contact's phone number."""
+
+    book = context.address_book
 
     if not args:
         raise IndexError
@@ -270,22 +278,83 @@ def show_phone(args, book: AddressBook):
 
 
 @command_error_handler
-def show_all(args, book: AddressBook):
-    """Return all saved contacts"""
+def show_all(args, context: AppContext):
+    """Return all saved contacts, optionally sorted by a selected field."""
 
-    if args:
-        raise ValueError("The all command does not take arguments.")
+    book = context.address_book
+
+    if len(args) > 1:
+        raise ValueError("Provide at most one sort field.")
 
     if not book.data:
         return view.error("No contacts found.")
 
-    return view.render_table(list(book.data.values()))
+    def validate_sort_field(value: str) -> None:
+        if value.casefold() not in SEARCHABLE_FIELDS:
+            raise ValueError(
+                f"Unknown sort field. Choose one of: {', '.join(SEARCHABLE_FIELDS)}."
+            )
+
+    if args:
+        sort_field = args[0].casefold()
+        validate_sort_field(sort_field)
+    else:
+        field_completer = WordCompleter(SEARCHABLE_FIELDS, ignore_case=True)
+        while True:
+            sort_field = _prompt(
+                f"Sort by ({', '.join(SEARCHABLE_FIELDS)}, Enter to skip): ",
+                completer=field_completer,
+                complete_while_typing=True,
+            ).strip().casefold()
+            if not sort_field:
+                break
+            try:
+                validate_sort_field(sort_field)
+                break
+            except ValueError as exc:
+                _rprint(view.error(str(exc)))
+
+    records = list(book.data.values())
+    if sort_field:
+        directions = ("ascending", "descending")
+        direction_completer = WordCompleter(directions, ignore_case=True)
+        while True:
+            direction = _prompt(
+                "Direction (ascending, descending; Enter for ascending): ",
+                completer=direction_completer,
+                complete_while_typing=True,
+            ).strip().casefold()
+            if not direction:
+                direction = "ascending"
+                break
+            if direction in directions:
+                break
+            _rprint(view.error("Direction must be ascending or descending."))
+
+        def sort_key(record: Record):
+            values = {
+                "name": record.name.value,
+                "phone": record.phones[0].value if record.phones else None,
+                "email": record.email.value if record.email else None,
+                "address": record.address.value if record.address else None,
+                "birthday": record.birthday.value if record.birthday else None,
+            }
+            value = values[sort_field]
+            if isinstance(value, str):
+                value = value.casefold()
+            return value is None, value
+
+        records.sort(key=sort_key, reverse=direction == "descending")
+        records.sort(key=lambda record: sort_key(record)[0])
+
+    return view.render_table(records)
 
 
 @command_error_handler
-def search_contacts(args, book: AddressBook):
+def search_contacts(args, context: AppContext):
     """Searches contacts by any field."""
 
+    book = context.address_book
     query = " ".join(args) if args else _prompt_validated("Search query: ")
 
     found = book.search(query)
@@ -300,9 +369,10 @@ def search_contacts(args, book: AddressBook):
 
 
 @command_error_handler
-def search_contact_by_field(args, book: AddressBook):
+def search_contact_by_field(args, context: AppContext):
     """Searches contacts only within a selected field."""
 
+    book = context.address_book
     field_completer = WordCompleter(SEARCHABLE_FIELDS, ignore_case=True)
 
     def validate_field(value: str) -> None:
@@ -348,8 +418,10 @@ def search_contact_by_field(args, book: AddressBook):
 
 
 @command_error_handler
-def add_birthday(args, book: AddressBook):
+def add_birthday(args, context: AppContext):
     """Adds a birthday to the contact."""
+
+    book = context.address_book
 
     if len(args) < 2:
         raise ValueError("Give me name and birthday in DD.MM.YYYY format please.")
@@ -367,8 +439,10 @@ def add_birthday(args, book: AddressBook):
 
 
 @command_error_handler
-def show_birthday(args, book: AddressBook):
+def show_birthday(args, context: AppContext):
     """Shows a contact's birthday."""
+
+    book = context.address_book
 
     if not args:
         raise IndexError
@@ -387,8 +461,10 @@ def show_birthday(args, book: AddressBook):
 
 
 @command_error_handler
-def birthdays(args, book: AddressBook):
+def birthdays(args, context: AppContext):
     """Shows birthdays occurring within the requested number of days."""
+
+    book = context.address_book
 
     if len(args) > 1:
         raise ValueError("Provide one number of days.")
@@ -414,7 +490,9 @@ def birthdays(args, book: AddressBook):
 
 
 @command_error_handler
-def add_address(args, book: AddressBook):
+def add_address(args, context: AppContext):
+
+    book = context.address_book
 
     if len(args) < 2:
         raise ValueError("Provide contact's name and address")
@@ -432,7 +510,9 @@ def add_address(args, book: AddressBook):
 
 
 @command_error_handler
-def add_email(args, book: AddressBook):
+def add_email(args, context: AppContext):
+
+    book = context.address_book
 
     if len(args) < 2:
         raise ValueError("Provide contact's name and email")
@@ -456,21 +536,21 @@ def add_email(args, book: AddressBook):
 
 
 @command_error_handler
-def hello_command(_args, _book):
+def hello_command(_args, _context):
     """Handle hello command."""
 
     return "How can I help you?"
 
 
 @command_error_handler
-def close_command(_args, _book):
+def close_command(_args, _context):
     """Handles close command"""
 
     return "Good bye!"
 
 
 @command_error_handler
-def help_command(_args, _book):
+def help_command(_args, _context):
     """Return the table of all available commands."""
 
     return view.render_commands(COMMANDS, COMMAND_SECTIONS)
@@ -491,16 +571,23 @@ def invalid_command():
 class Command:
     """A single CLI command: its handler, usage hint and description."""
 
-    handler: Callable[[list[str], AddressBook], RenderableType]
+    handler: Callable[[list[str], AppContext], RenderableType]
     usage: str
     description: str
 
 
-COMMANDS: dict[str, Command] = {
+GENERAL_COMMANDS: dict[str, Command] = {
     "help": Command(help_command, "help", "Показати це меню"),
     "exit": Command(close_command, "exit", "Вийти зі збереженням"),
     "hello": Command(hello_command, "hello", "Привітання"),
-    "show-all-contacts": Command(show_all, "show-all-contacts", "Показати всі контакти"),
+}
+
+CONTACT_COMMANDS: dict[str, Command] = {
+    "show-all-contacts": Command(
+        show_all,
+        "show-all-contacts [поле]",
+        "Показати всі контакти з опціональним сортуванням",
+    ),
     "show-contact-phones": Command(show_phone, "show-contact-phones [ім'я]", "Показати телефони контакту"),
     "search-contacts": Command(
         search_contacts,
@@ -517,25 +604,17 @@ COMMANDS: dict[str, Command] = {
     "edit-contact-phones": Command(edit_contact_phones, "edit-contact-phones [ім'я]", "Редагувати телефони контакту"),
     "upcoming-birthdays": Command(
         birthdays, "upcoming-birthdays [дні]", "Найближчі дні народження"
-    )
+    ),
 }
 
+NOTE_COMMANDS: dict[str, Command] = {}
+
+COMMANDS = GENERAL_COMMANDS | CONTACT_COMMANDS | NOTE_COMMANDS
+
 COMMAND_SECTIONS = (
-    ("General", ("help", "exit", "hello")),
-    (
-        "Contacts",
-        (
-            "show-all-contacts",
-            "show-contact-phones",
-            "search-contacts",
-            "search-contact-by-field",
-            "add-contact",
-            "edit-contact",
-            "edit-contact-phones",
-            "upcoming-birthdays",
-        ),
-    ),
-    ("Notes", ()),
+    ("General", tuple(GENERAL_COMMANDS)),
+    ("Contacts", tuple(CONTACT_COMMANDS)),
+    ("Notes", tuple(NOTE_COMMANDS)),
 )
 
 EXIT_COMMANDS = {"exit"}

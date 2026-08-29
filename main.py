@@ -21,10 +21,10 @@ def main():
 
     console = Console()
 
-    book = load_data()
+    context = load_data()
 
     console.print("[bold]Welcome to the assistant bot![/]")
-    console.print(commands.help_command([], book))
+    console.print(commands.help_command([], context))
 
     # Auto completer of commands
     completer = NestedCompleter.from_nested_dict(
@@ -53,11 +53,11 @@ def main():
             console.print(commands.invalid_command())
             continue
 
-        result = entry.handler(args, book)
+        result = entry.handler(args, context)
         console.print()
         console.print(result)
 
-        save_data(book)
+        save_data(context)
 
         if command in commands.EXIT_COMMANDS:            
             break

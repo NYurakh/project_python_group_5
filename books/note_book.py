@@ -1,6 +1,7 @@
-"""NotesBook: a collection of notes.
+"""NoteBook: a collection of notes."""
 
-Placeholder for now 
-"""
+from collections import UserList
 
-# TODO: implement NotesBook here when the notes feature is added.
+
+class NoteBook(UserList):
+	"""Collection to be extended when note commands are implemented."""
