@@ -33,6 +33,7 @@ def render_table(records: list[Record], title: str = "Contacts") -> Table:
     table.add_column("Name", style="cyan", no_wrap=True)
     table.add_column("Phones", no_wrap=True)
     table.add_column("Email")
+    table.add_column("Address")
     table.add_column("Birthday", justify="right", no_wrap=True)
 
     for record in records:
@@ -40,6 +41,7 @@ def render_table(records: list[Record], title: str = "Contacts") -> Table:
             record.name.value,
             _phones(record),
             _email(record),
+            _address(record),
             _birthday(record),
         )
     return table
