@@ -1,5 +1,6 @@
 """Rendering contacts and messages for the terminal."""
 
+from rich.console import Group
 from rich.table import Table
 from rich.text import Text
 
@@ -61,18 +62,34 @@ def render_record(record: Record) -> Table:
     return table
 
 
-def render_commands(commands) -> Table:
-    """Formats the command reference"""
+def render_commands(commands, sections) -> Group:
+    """Formats the command reference grouped into sections."""
 
-    table = Table(box=None, show_header=False, padding=(0, 2, 0, 0))
+    renderables = [
+        Text("Для більшості команд аргументи опціональні.\n", style="italic"),
+    ]
 
-    table.add_column(style="bold cyan", no_wrap=True)
-    table.add_column()
+    for index, (title, command_names) in enumerate(sections):
+        table = Table(
+            title=f"-- {title} --",
+            title_justify="left",
+            title_style="bold green",
+            box=None,
+            show_header=False,
+            padding=(0, 2, 0, 0),
+        )
+        table.add_column(style="bold cyan", no_wrap=True)
+        table.add_column()
 
-    for command in commands.values():
-        table.add_row(command.usage, command.description)
+        for command_name in command_names:
+            command = commands[command_name]
+            table.add_row(command.usage, command.description)
 
-    return table
+        renderables.append(table)
+        if index < len(sections) - 1:
+            renderables.append(Text())
+
+    return Group(*renderables)
 
 
 def success(message: str) -> Text:

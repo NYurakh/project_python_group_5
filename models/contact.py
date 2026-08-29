@@ -2,6 +2,8 @@
 
 from models.fields import Address, Birthday, Email, Name, Phone
 
+SEARCHABLE_FIELDS = ("name", "phone", "email", "address", "birthday")
+
 
 class Record:
     """Class for storing contact information (name and list of phone numbers)"""
@@ -79,6 +81,24 @@ class Record:
             values.append(self.birthday.value.strftime("%d.%m.%Y"))
 
         return any(query in value.casefold() for value in values)
+
+    def matches_field(self, field: str, query: str) -> bool:
+        """Checks whether the query occurs in the selected field."""
+
+        values = {
+            "name": [self.name.value],
+            "phone": [phone.value for phone in self.phones],
+            "email": [self.email.value] if self.email else [],
+            "address": [self.address.value] if self.address else [],
+            "birthday": (
+                [self.birthday.value.strftime("%d.%m.%Y")] if self.birthday else []
+            ),
+        }
+
+        if not query:
+            return not values[field]
+
+        return any(query.casefold() in value.casefold() for value in values[field])
 
 
     def __str__(self) -> str:

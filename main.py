@@ -7,7 +7,7 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import NestedCompleter
 from rich.console import Console
 
-from cli import commands
+from cli import commands, view
 from cli.parser import parse_input
 from storage.storage import load_data, save_data
 
@@ -34,9 +34,14 @@ def main():
     session = PromptSession(completer=completer, complete_while_typing=False)
 
     while True:
-        user_input = session.prompt("\n>>> ")
+        user_input = session.prompt(">>> ")
 
-        command, *args = parse_input(user_input)
+        try:
+            command, *args = parse_input(user_input)
+        except ValueError as exc:
+            console.print()
+            console.print(view.error(f"Invalid quoting: {exc}"))
+            continue
 
         if not command:
             continue
@@ -44,13 +49,17 @@ def main():
         entry = commands.COMMANDS.get(command)
 
         if entry is None:
+            console.print()
             console.print(commands.invalid_command())
             continue
 
-        console.print(entry.handler(args, book))
+        result = entry.handler(args, book)
+        console.print()
+        console.print(result)
 
-        if command in commands.EXIT_COMMANDS:
-            save_data(book)
+        save_data(book)
+
+        if command in commands.EXIT_COMMANDS:            
             break
 
 

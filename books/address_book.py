@@ -24,6 +24,15 @@ class AddressBook(UserDict[str, Record]):
 
         return [record for record in self.data.values() if record.matches(query)]
 
+    def search_by_field(self, field: str, query: str) -> list[Record]:
+        """Returns records matching the query in the selected field."""
+
+        return [
+            record
+            for record in self.data.values()
+            if record.matches_field(field, query)
+        ]
+
     def delete(self, name: str) -> None:
         """Deletes a record by name"""
 
