@@ -141,6 +141,20 @@ def add_contact(args, context: AppContext):
 
 
 @command_error_handler
+def remove_contact(args, context: AppContext):
+    """Removes a contact from the address book."""
+
+    book = context.address_book
+    name = " ".join(args) if args else _prompt_validated("Contact name: ")
+
+    if book.find(name) is None:
+        raise KeyError
+
+    book.delete(name)
+    return view.success("Contact removed.")
+
+
+@command_error_handler
 def edit_contact(args, context: AppContext):
     """Edits an existing contact interactively, pre-filling current values."""
 
@@ -600,6 +614,9 @@ CONTACT_COMMANDS: dict[str, Command] = {
         "Знайти контакти за конкретним полем",
     ),
     "add-contact": Command(add_contact, "add-contact", "Додати контакт"),
+    "remove-contact": Command(
+        remove_contact, "remove-contact [ім'я]", "Видалити контакт"
+    ),
     "edit-contact": Command(edit_contact, "edit-contact [ім'я]", "Редагувати контакт"),
     "edit-contact-phones": Command(edit_contact_phones, "edit-contact-phones [ім'я]", "Редагувати телефони контакту"),
     "upcoming-birthdays": Command(
