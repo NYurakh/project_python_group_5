@@ -1,5 +1,7 @@
 """Record: a single contact (name, phones, birthday)."""
 
+from datetime import date
+
 from models.fields import Address, Birthday, Email, Name, Phone
 
 SEARCHABLE_FIELDS = ("name", "phone", "email", "address", "birthday")
@@ -31,7 +33,10 @@ class Record:
     def add_phone(self, phone_number: str) -> None:
         """Adds a phone number to the list"""
 
-        self.phones.append(Phone(phone_number))
+        phone = Phone(phone_number)
+        if self.find_phone(phone.value) is not None:
+            raise ValueError(f"Phone {phone.value} is already in the list.")
+        self.phones.append(phone)
 
     def remove_phone(self, phone_number: str) -> None:
         """Removes phone number from the list"""
@@ -99,6 +104,18 @@ class Record:
             return not values[field]
 
         return any(query.casefold() in value.casefold() for value in values[field])
+
+    def sort_value(self, field: str) -> str | date | None:
+        """Returns a normalized field value suitable for sorting."""
+
+        values = {
+            "name": self.name.value.casefold(),
+            "phone": self.phones[0].value if self.phones else None,
+            "email": self.email.value.casefold() if self.email else None,
+            "address": self.address.value.casefold() if self.address else None,
+            "birthday": self.birthday.value if self.birthday else None,
+        }
+        return values[field]
 
 
     def __str__(self) -> str:

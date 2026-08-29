@@ -3,7 +3,7 @@
 from collections import UserDict
 from datetime import datetime, timedelta
 
-from models.contact import Record
+from models.contact import Record, SEARCHABLE_FIELDS
 
 
 class AddressBook(UserDict[str, Record]):
@@ -32,6 +32,26 @@ class AddressBook(UserDict[str, Record]):
             for record in self.data.values()
             if record.matches_field(field, query)
         ]
+
+    def sorted_by(self, field: str, *, descending: bool = False) -> list[Record]:
+        """Returns records sorted by a field, with missing values last."""
+
+        if field not in SEARCHABLE_FIELDS:
+            raise ValueError(
+                f"Unknown sort field. Choose one of: {', '.join(SEARCHABLE_FIELDS)}."
+            )
+
+        records = list(self.data.values())
+        populated = [record for record in records if record.sort_value(field) is not None]
+        missing = [record for record in records if record.sort_value(field) is None]
+
+        def sort_key(record: Record):
+            value = record.sort_value(field)
+            assert value is not None
+            return value
+
+        populated.sort(key=sort_key, reverse=descending)
+        return populated + missing
 
     def delete(self, name: str) -> None:
         """Deletes a record by name"""

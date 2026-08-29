@@ -1,6 +1,6 @@
 """Rendering contacts and messages for the terminal."""
 
-from rich.console import Group
+from rich.console import Group, RenderableType
 from rich.table import Table
 from rich.text import Text
 
@@ -10,7 +10,12 @@ EMPTY = "-"
 
 
 def _phones(record: Record) -> str:
-    return "; ".join(phone.value for phone in record.phones) or EMPTY
+    phone_values = [phone.value for phone in record.phones]
+    phone_lines = [
+        "; ".join(phone_values[index : index + 2])
+        for index in range(0, len(phone_values), 2)
+    ]
+    return "\n".join(phone_lines) or EMPTY
 
 
 def _email(record: Record) -> str:
@@ -28,12 +33,17 @@ def _birthday(record: Record) -> str:
 def render_table(records: list[Record], title: str = "Contacts") -> Table:
     """Formats records as a column table."""
 
-    table = Table(title=title, title_justify="left", header_style="bold")
+    table = Table(
+        title=title,
+        title_justify="left",
+        header_style="bold",
+        show_lines=True,
+    )
 
-    table.add_column("Name", style="cyan", no_wrap=True)
-    table.add_column("Phones", no_wrap=True)
-    table.add_column("Email")
-    table.add_column("Address")
+    table.add_column("Name", style="cyan", max_width=24, overflow="fold")
+    table.add_column("Phones", max_width=22, overflow="fold")
+    table.add_column("Email", max_width=30, overflow="fold")
+    table.add_column("Address", max_width=36, overflow="fold")
     table.add_column("Birthday", justify="right", no_wrap=True)
 
     for record in records:
@@ -67,7 +77,7 @@ def render_record(record: Record) -> Table:
 def render_commands(commands, sections) -> Group:
     """Formats the command reference grouped into sections."""
 
-    renderables = [
+    renderables: list[RenderableType] = [
         Text("Для більшості команд аргументи опціональні.\n", style="italic"),
     ]
 
