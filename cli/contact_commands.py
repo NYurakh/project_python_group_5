@@ -12,10 +12,11 @@ from cli.command_helpers import (
     prompt_choice,
     prompt_until_valid,
 )
-from models.contact import Record, SEARCHABLE_FIELDS
+from models.contact import SEARCHABLE_FIELDS, Record
 from models.fields import Address, Birthday, Email, Phone
 
 
+# --- Shared contact helpers ---------------------------------------------------
 def _find_contact(book: AddressBook, name: str) -> Record:
     record = book.find(name)
     if record is None:
@@ -56,6 +57,7 @@ def prompt_for_phones(existing: list[Phone]) -> list[str]:
     return phones
 
 
+# --- Contact commands ---------------------------------------------------------
 @command_error_handler
 def add_contact(args, context: AppContext):
     """Adds a contact to the address book interactively."""
@@ -125,9 +127,7 @@ def edit_contact(args, context: AppContext):
         if value != name and book.find(value) is not None:
             raise ValueError(f"Contact '{value}' already exists.")
 
-    new_name = prompt_until_valid(
-        "Name: ", unique_new_name, default=record.name.value
-    )
+    new_name = prompt_until_valid("Name: ", unique_new_name, default=record.name.value)
     phones = prompt_for_phones(record.phones)
     birthday_default = (
         record.birthday.value.strftime("%d.%m.%Y") if record.birthday else ""
@@ -154,6 +154,7 @@ def edit_contact(args, context: AppContext):
     if not phones:
         return view.error("Contact must have at least one phone number.")
 
+    # AddressBook is keyed by name, so renaming also requires moving the dict key.
     if new_name != name:
         book.delete(name)
         record.name.value = new_name
@@ -163,6 +164,7 @@ def edit_contact(args, context: AppContext):
     for phone in phones:
         record.add_phone(phone)
 
+    # Rebuild optional fields so an empty edit prompt actually clears stored values.
     record.birthday = None
     if birthday:
         record.add_birthday(birthday)
@@ -273,6 +275,7 @@ def search_contact_by_field(args, context: AppContext):
         )
 
     if len(args) > 1:
+        # Empty search has a special meaning, so allow it only in interactive mode.
         query = " ".join(args[1:]).strip()
         if not query:
             raise ValueError("An empty value is only allowed in the prompt.")
@@ -308,6 +311,5 @@ def birthdays(args, context: AppContext):
     if not upcoming_birthdays:
         return "No upcoming birthdays."
     return "\n".join(
-        f"{item['name']}: {item['congratulation_date']}"
-        for item in upcoming_birthdays
+        f"{item['name']}: {item['congratulation_date']}" for item in upcoming_birthdays
     )

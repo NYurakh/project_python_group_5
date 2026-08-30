@@ -1,4 +1,4 @@
-"""Record: a single contact (name, phones, birthday)."""
+"""Contact model with phone, email, address, birthday, search, and sort helpers."""
 
 from datetime import date
 
@@ -28,6 +28,7 @@ class Record:
         self.address = Address(address)
 
     def add_birthday(self, birthday: str) -> None:
+        """Set or replace the contact birthday after validation."""
         self.birthday = Birthday(birthday)
 
     def add_phone(self, phone_number: str) -> None:
@@ -71,7 +72,7 @@ class Record:
     def matches(self, query: str) -> bool:
         """Checks whether the query occurs in any of the record's fields."""
 
-        query =query.casefold()
+        query = query.casefold()
 
         values = [self.name.value]
         values += [phone.value for phone in self.phones]
@@ -117,7 +118,6 @@ class Record:
         }
         return values[field]
 
-
     def __str__(self) -> str:
         parts = [f"Contact's name: {self.name.value}"]
 
@@ -134,4 +134,3 @@ class Record:
             parts.append(f"birthday: {self.birthday.value.strftime('%d.%m.%Y')}")
 
         return ", ".join(parts)
-

@@ -6,7 +6,6 @@ from pathlib import Path
 from app_context import AppContext
 from books.address_book import AddressBook
 
-
 DATA_DIR = Path(__file__).resolve().parent.parent / "userdata"
 DATA_FILE = DATA_DIR / "assistant_data.pkl"
 
@@ -41,7 +40,4 @@ def load_data(
     if isinstance(data, AddressBook):
         return AppContext(address_book=data)
 
-    raise TypeError(
-        f"Unsupported data type in {filename}: "
-        f"{type(data).__name__}"
-    )
+    raise TypeError(f"Unsupported data type in {filename}: {type(data).__name__}")

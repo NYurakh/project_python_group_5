@@ -18,7 +18,6 @@ from cli.contact_commands import (
     show_phone,
 )
 from cli.general_commands import close_command, hello_command, help_command
-
 from cli.note_commands import (
     add_note,
     edit_note,
@@ -40,6 +39,7 @@ class Command:
     description: str
 
 
+# Registry metadata is shared by command dispatch, help output, and completion.
 GENERAL_COMMANDS: dict[str, Command] = {
     "help": Command(help_command, "help", "Показати це меню"),
     "exit": Command(close_command, "exit", "Вийти зі збереженням"),
@@ -71,9 +71,7 @@ CONTACT_COMMANDS: dict[str, Command] = {
     "remove-contact": Command(
         remove_contact, "remove-contact [ім'я]", "Видалити контакт"
     ),
-    "edit-contact": Command(
-        edit_contact, "edit-contact [ім'я]", "Редагувати контакт"
-    ),
+    "edit-contact": Command(edit_contact, "edit-contact [ім'я]", "Редагувати контакт"),
     "edit-contact-phones": Command(
         edit_contact_phones,
         "edit-contact-phones [ім'я]",
@@ -129,6 +127,7 @@ NOTE_COMMANDS: dict[str, Command] = {
 
 COMMANDS = GENERAL_COMMANDS | CONTACT_COMMANDS | NOTE_COMMANDS
 
+# Section order controls how the generated help menu is grouped.
 COMMAND_SECTIONS = (
     ("General", tuple(GENERAL_COMMANDS)),
     ("Contacts", tuple(CONTACT_COMMANDS)),

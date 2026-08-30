@@ -1,4 +1,4 @@
-"""Shared application state passed to commands and storage."""
+"""Persistent application state shared by CLI commands and storage."""
 
 from dataclasses import dataclass, field
 
@@ -8,7 +8,7 @@ from books.note_book import NoteBook
 
 @dataclass
 class AppContext:
-    """Holds the application's persistent books."""
+    """Groups the contact and note collections into one persisted object."""
 
     address_book: AddressBook = field(default_factory=AddressBook)
     note_book: NoteBook = field(default_factory=NoteBook)

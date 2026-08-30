@@ -39,7 +39,7 @@ def prompt_until_valid(
     default: str = "",
 ) -> str:
     """Prompt until input passes validation or an optional value is omitted."""
-
+    # Keep the invalid value editable instead of making the user retype it.
     current_default = default
     while True:
         value = prompt(label, default=current_default).strip()
