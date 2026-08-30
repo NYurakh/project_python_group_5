@@ -19,6 +19,16 @@ from cli.contact_commands import (
 )
 from cli.general_commands import close_command, hello_command, help_command
 
+from cli.note_commands import (
+    add_note,
+    edit_note,
+    remove_note,
+    search_notes,
+    search_notes_by_tag,
+    show_all_notes,
+    sort_notes_by_tags,
+)
+
 
 @dataclass(frozen=True)
 class Command:
@@ -73,7 +83,43 @@ CONTACT_COMMANDS: dict[str, Command] = {
     ),
 }
 
-NOTE_COMMANDS: dict[str, Command] = {}
+NOTE_COMMANDS: dict[str, Command] = {
+    "add-note": Command(
+        add_note,
+        "add-note",
+        "Додати нотатку",
+    ),
+    "show-all-notes": Command(
+        show_all_notes,
+        "show-all-notes",
+        "Показати всі нотатки",
+    ),
+    "search-notes": Command(
+        search_notes,
+        "search-notes [текст]",
+        "Знайти нотатки за назвою або тегами",
+    ),
+    "remove-note": Command(
+        remove_note,
+        "remove-note [ID]",
+        "Видалити нотатку",
+    ),
+    "edit-note": Command(
+        edit_note,
+        "edit-note [ID]",
+        "Редагувати нотатку",
+    ),
+    "search-notes-by-tag": Command(
+        search_notes_by_tag,
+        "search-notes-by-tag [тег]",
+        "Знайти нотатки за тегом",
+    ),
+    "sort-notes-by-tags": Command(
+        sort_notes_by_tags,
+        "sort-notes-by-tags",
+        "Сортувати нотатки за тегами",
+    ),
+}
 
 COMMANDS = GENERAL_COMMANDS | CONTACT_COMMANDS | NOTE_COMMANDS
 
