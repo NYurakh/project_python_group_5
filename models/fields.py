@@ -1,12 +1,14 @@
-"""Field classes for a contact: the common base plus Name, Phone, Birthday."""
+"""Validated field wrappers used by contact records."""
 
-from datetime import datetime
 import re
+from datetime import datetime
 
 # region --- Base field ---
 
 
 class Field:
+    """Base wrapper for a single contact field value."""
+
     def __init__(self, value):
         self.value = value
 
@@ -21,6 +23,8 @@ class Field:
 
 
 class Birthday(Field):
+    """Birthday stored as a date after strict ``DD.MM.YYYY`` validation."""
+
     def __init__(self, value: str):
         try:
             birthday = datetime.strptime(value, "%d.%m.%Y").date()
@@ -36,13 +40,13 @@ class Birthday(Field):
 
 
 class Name(Field):
-    """Necessary field for the contact's name."""
+    """Contact name wrapper; required/unique checks are handled by the CLI layer."""
 
     pass
 
 
 class Phone(Field):
-    """Field for the contact's phone number with 10 characters validation."""
+    """Contact phone number validated as exactly 10 digits."""
 
     def __init__(self, value):
         if not self._is_valid_phone(value):
@@ -64,6 +68,7 @@ class Email(Field):
 
     _PATTERN = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
 
+    # Project-specific rule: reject addresses under these top-level domains.
     _BLOCKED_TLDS = (".ru", ".su", ".рф")
 
     def __init__(self, value):

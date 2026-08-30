@@ -22,7 +22,7 @@ def close_command(_args, _context):
 def help_command(_args, _context):
     """Returns the command reference."""
 
-    from cli.command_registry import COMMANDS, COMMAND_SECTIONS
+    from cli.command_registry import COMMAND_SECTIONS, COMMANDS
 
     return view.render_commands(COMMANDS, COMMAND_SECTIONS)
 

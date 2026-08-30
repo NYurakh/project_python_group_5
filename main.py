@@ -17,7 +17,7 @@ from storage.storage import load_data, save_data
 def main():
     """Run the assistant bot loop."""
 
-    # Messages contain Cyrillic, which crashes on consoles with a legacy codepage
+    # Force UTF-8 on legacy Windows consoles, so Cyrillic UI text is rendered safely.
     if isinstance(sys.stdout, io.TextIOWrapper):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 

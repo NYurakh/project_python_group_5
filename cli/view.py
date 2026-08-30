@@ -10,10 +10,11 @@ from models.note import Note
 EMPTY = "-"
 
 
+# --- Contact rendering --------------------------------------------------------
 def _phones(record: Record) -> str:
     phone_values = [phone.value for phone in record.phones]
     phone_lines = [
-        "; ".join(phone_values[index: index + 2])
+        "; ".join(phone_values[index : index + 2])
         for index in range(0, len(phone_values), 2)
     ]
     return "\n".join(phone_lines) or EMPTY
@@ -75,6 +76,7 @@ def render_record(record: Record) -> Table:
     return table
 
 
+# --- Note rendering -----------------------------------------------------------
 def render_note_table(
     notes: list[Note],
     title: str = "Notes",
@@ -104,6 +106,7 @@ def render_note_table(
     return table
 
 
+# --- Shared CLI rendering -----------------------------------------------------
 def render_commands(commands, sections) -> Group:
     """Formats the command reference grouped into sections."""
 

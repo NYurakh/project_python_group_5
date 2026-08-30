@@ -5,15 +5,14 @@ from cli import view
 from cli.command_helpers import command_error_handler, prompt_until_valid
 
 
+# --- Tag input helpers --------------------------------------------------------
 def _validate_tags(value: str) -> None:
     """Validates a comma-separated string of tags."""
 
     tags = value.split(",")
 
     if any(not tag.strip() for tag in tags):
-        raise ValueError(
-            "Tags must be separated by commas and cannot be empty."
-        )
+        raise ValueError("Tags must be separated by commas and cannot be empty.")
 
 
 def _parse_tags(value: str) -> list[str]:
@@ -25,6 +24,7 @@ def _parse_tags(value: str) -> list[str]:
     return sorted([tag.strip() for tag in value.split(",") if tag.strip()], key=str.casefold,)
 
 
+# --- Note commands ------------------------------------------------------------
 @command_error_handler
 def add_note(args, context: AppContext):
     """Adds a note interactively."""
@@ -86,9 +86,7 @@ def show_all_notes(args, context: AppContext):
     """Shows all saved notes."""
 
     if args:
-        raise ValueError(
-            "The show-all-notes command does not take arguments."
-        )
+        raise ValueError("The show-all-notes command does not take arguments.")
 
     return view.render_note_table(
         list(context.note_book),
@@ -205,9 +203,7 @@ def sort_notes_by_tags(args, context: AppContext):
     """Shows notes sorted alphabetically by tags."""
 
     if args:
-        raise ValueError(
-            "The sort-notes-by-tags command does not take arguments."
-        )
+        raise ValueError("The sort-notes-by-tags command does not take arguments.")
 
     notes = context.note_book.sorted_by_tags()
 

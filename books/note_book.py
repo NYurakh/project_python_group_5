@@ -1,4 +1,4 @@
-"""NoteBook: a collection of notes."""
+"""List-backed note collection with ID, search, tag, sort, and delete helpers."""
 
 from collections import UserList
 

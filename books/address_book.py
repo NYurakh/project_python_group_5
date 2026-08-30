@@ -1,9 +1,9 @@
-"""AddressBook: a collection of contact records."""
+"""Contact collection with lookup, search, sorting, and birthday helpers."""
 
 from collections import UserDict
 from datetime import datetime, timedelta
 
-from models.contact import Record, SEARCHABLE_FIELDS
+from models.contact import SEARCHABLE_FIELDS, Record
 
 
 class AddressBook(UserDict[str, Record]):
@@ -42,7 +42,9 @@ class AddressBook(UserDict[str, Record]):
             )
 
         records = list(self.data.values())
-        populated = [record for record in records if record.sort_value(field) is not None]
+        populated = [
+            record for record in records if record.sort_value(field) is not None
+        ]
         missing = [record for record in records if record.sort_value(field) is None]
 
         def sort_key(record: Record):
@@ -62,7 +64,7 @@ class AddressBook(UserDict[str, Record]):
             raise ValueError(f"Record with name {name} not found.")
 
     def get_upcoming_birthdays(self, days: int = 7) -> list[dict[str, str]]:
-        """Returns contacts whose birthdays occur within the next week."""
+        """Returns contacts whose birthdays occur within the selected range."""
 
         upcoming_birthdays = []
         today = datetime.today().date()
@@ -73,15 +75,14 @@ class AddressBook(UserDict[str, Record]):
 
             birthday = record.birthday.value
 
-            # Birthday in the current year
+            # Build the next occurrence of this birthday.
             try:
                 birthday_this_year = birthday.replace(year=today.year)
             except ValueError:
-                # Handles February 29 in a non-leap year
+                # A Feb 29 birthday falls back to Feb 28 in non-leap years.
                 birthday_this_year = birthday.replace(year=today.year, day=28)
 
-            # If the birthday has already passed this year,
-            # check the next year
+            # If this year's occurrence has passed, use next year's date.
             if birthday_this_year < today:
                 try:
                     birthday_this_year = birthday.replace(year=today.year + 1)
@@ -90,16 +91,13 @@ class AddressBook(UserDict[str, Record]):
 
             days_until_birthday = (birthday_this_year - today).days
 
-            # Current day + the following 6 days = 7 days
-            # TODO: Change logic of showing birthdays according to requirements. There should be an option to choose the range of showing birthdays.
             if 0 <= days_until_birthday < days:
                 congratulation_date = birthday_this_year
 
-                # Saturday -> Monday
+                # Weekend birthdays are congratulated on the following Monday.
                 if congratulation_date.weekday() == 5:
                     congratulation_date += timedelta(days=2)
 
-                # Sunday -> Monday
                 elif congratulation_date.weekday() == 6:
                     congratulation_date += timedelta(days=1)
 
@@ -113,5 +111,3 @@ class AddressBook(UserDict[str, Record]):
         upcoming_birthdays.sort(key=lambda item: item["congratulation_date"])
 
         return upcoming_birthdays
-
-
