@@ -5,13 +5,24 @@ from cli import view
 from cli.command_helpers import command_error_handler, prompt_until_valid
 
 
+def _validate_tags(value: str) -> None:
+    """Validates a comma-separated string of tags."""
+
+    tags = value.split(",")
+
+    if any(not tag.strip() for tag in tags):
+        raise ValueError(
+            "Tags must be separated by commas and cannot be empty."
+        )
+
+
 def _parse_tags(value: str) -> list[str]:
     """Converts comma-separated tags to a list."""
 
     if not value:
         return []
 
-    return [tag.strip() for tag in value.split(",") if tag.strip()]
+    return sorted([tag.strip() for tag in value.split(",") if tag.strip()], key=str.casefold,)
 
 
 @command_error_handler
@@ -27,6 +38,7 @@ def add_note(args, context: AppContext):
 
     tags_value = prompt_until_valid(
         "Tags separated by commas (Enter to skip): ",
+        _validate_tags,
         required=False,
     )
 
@@ -157,6 +169,7 @@ def edit_note(args, context: AppContext):
 
     tags_value = prompt_until_valid(
         "Tags separated by commas: ",
+        _validate_tags,
         required=False,
         default=", ".join(note.tags),
     )
