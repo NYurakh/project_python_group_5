@@ -128,7 +128,6 @@ If a value is invalid, the program shows the validation error and asks for that 
 | `upcoming-birthdays [days]` | Show contacts with birthdays in the requested range |
 
 ### Notes
-### Notes
 
 | Command | What it does |
 |---|---|
