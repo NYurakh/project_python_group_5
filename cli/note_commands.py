@@ -86,7 +86,7 @@ def show_all_notes(args, context: AppContext):
 
 @command_error_handler
 def search_notes(args, context: AppContext):
-    """Searches notes by title or user tags."""
+    """Searches notes by title, text or user tags."""
 
     if args:
         query = " ".join(args)

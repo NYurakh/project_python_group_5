@@ -63,12 +63,13 @@ class Note:
         self.updated_at = datetime.now()
 
     def matches(self, query: str) -> bool:
-        """Checks whether query occurs in the title or user tags."""
+        """Checks whether query occurs in the title, text or user tags."""
 
         query = query.casefold()
 
         return (
             query in self.title.casefold()
+            or query in self.text.casefold()
             or any(query in tag.casefold() for tag in self.tags)
         )
 

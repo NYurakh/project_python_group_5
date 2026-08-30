@@ -45,7 +45,7 @@ class NoteBook(UserList[Note]):
         return None
 
     def search(self, query: str) -> list[Note]:
-        """Returns notes matching title or tags."""
+        """Returns notes matching title, text or tags."""
 
         return [note for note in self.data if note.matches(query)]
 

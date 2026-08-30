@@ -103,7 +103,7 @@ NOTE_COMMANDS: dict[str, Command] = {
     "search-notes": Command(
         search_notes,
         "search-notes [текст]",
-        "Знайти нотатки за назвою або тегами",
+        "Знайти нотатки за назвою, тегами або текстом",
     ),
     "remove-note": Command(
         remove_note,
