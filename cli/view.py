@@ -5,6 +5,7 @@ from rich.table import Table
 from rich.text import Text
 
 from models.contact import Record
+from models.note import Note
 
 EMPTY = "-"
 
@@ -12,7 +13,7 @@ EMPTY = "-"
 def _phones(record: Record) -> str:
     phone_values = [phone.value for phone in record.phones]
     phone_lines = [
-        "; ".join(phone_values[index : index + 2])
+        "; ".join(phone_values[index: index + 2])
         for index in range(0, len(phone_values), 2)
     ]
     return "\n".join(phone_lines) or EMPTY
@@ -70,6 +71,35 @@ def render_record(record: Record) -> Table:
     table.add_row("Email", _email(record))
     table.add_row("Address", _address(record))
     table.add_row("Birthday", _birthday(record))
+
+    return table
+
+
+def render_note_table(
+    notes: list[Note],
+    title: str = "Notes",
+) -> Table:
+    """Formats notes as a table."""
+
+    table = Table(
+        title=title,
+        title_justify="left",
+        header_style="bold",
+        show_lines=True,
+    )
+
+    table.add_column("ID", justify="right", no_wrap=True)
+    table.add_column("Title", max_width=24, overflow="fold")
+    table.add_column("Text", max_width=50, overflow="fold")
+    table.add_column("Tags", max_width=30, overflow="fold")
+
+    for note in notes:
+        table.add_row(
+            str(note.id),
+            note.title,
+            note.text,
+            ", ".join(note.tags) or EMPTY,
+        )
 
     return table
 
