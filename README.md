@@ -15,7 +15,7 @@
 
 This is a team project for the **Python Programming** course at **Neoversity**.
 
-The application runs in the terminal and works as a local contact book. It can add, edit, remove, search, sort, and display contacts, as well as show upcoming birthdays. It also provide functional to manage notes. Data is saved to a local pickle file and restored the next time the program starts.
+The application runs in the terminal and works as a local contact book and note manager. It can add, edit, remove, search, sort, and display contacts, show upcoming birthdays, and manage text notes with tags. Data is saved locally and restored the next time the program starts.
 
 
 ---
@@ -32,7 +32,12 @@ The application runs in the terminal and works as a local contact book. It can a
 - show birthdays within a selected number of days;
 - validation of phone numbers, emails, birthdays, and addresses during input;
 - complete command names with Tab;
--save application state locally after each recognized command.
+- save application state locally after each recognized command;
+- add, edit, remove, and display notes;
+- assign tags to notes;
+- search notes by title, text, or tags;
+- search notes by a specific tag;
+- sort notes alphabetically by tags;
 
 Most commands can ask for missing values interactively, so there is no need to remember a long list of positional arguments.
 
@@ -123,7 +128,18 @@ If a value is invalid, the program shows the validation error and asks for that 
 | `upcoming-birthdays [days]` | Show contacts with birthdays in the requested range |
 
 ### Notes
+### Notes
 
+| Command | What it does |
+|---|---|
+| `add-note` | Add a new note with a title, text, and optional tags |
+| `show-all-notes` | Show all saved notes |
+| `show-note [ID]` | Show one note by its ID |
+| `edit-note [ID]` | Edit the title, text, and tags of a note |
+| `remove-note [ID]` | Remove a note |
+| `search-notes [text]` | Search notes by title, text, or tags |
+| `search-notes-by-tag [tag]` | Find notes with a specific tag |
+| `sort-notes-by-tags` | Show notes sorted alphabetically by tags |
 
 ---
 
@@ -149,16 +165,13 @@ Validation for `Phone`, `Email`, `Birthday`, and `Address` is implemented in the
 ---
 ## Data Storage
 
-Application state is stored in `addressbook.pkl` in the directory from which the program is started.
+Application state is stored in `.pkl` file.
 
-The file contains an `AppContext` with:
+The file contains the `AppContext`, including both the `AddressBook` and `NoteBook`.
 
-- the AddressBook used by the current contact commands;
-- a NoteBook object reserved for the notes feature.
+The `userdata` directory is created automatically when data is saved. The data file is excluded from Git, so personal contacts and notes are not committed to the repository.
 
-The program saves the context after each recognized command and loads it on the next start. Older pickle files that contain only an `AddressBook` are also accepted and wrapped in a new `AppContext` when loaded.
-
-Because the path is relative, starting the program from another directory can create or load another `addressbook.pkl`. So, for predictable results, run it from the project directory.
+The application saves its state after each recognized command and automatically loads it the next time it starts.
 
 ---
 ## Project structure
@@ -172,22 +185,26 @@ project_python_group_5/
 ├── models/
 │   ├── fields.py               # Name, Phone, Email, Birthday, Address
 │   ├── contact.py              # Contact record and matching/sorting helpers
-│   └── note.py                 # Notes placeholder for now
+│   └── note.py                 # Note model, tags, editing and search matching
 │
 ├── books/
 │   ├── address_book.py         # Contact collection, search, sort, birthdays
-│   └── note_book.py            # NoteBook placeholder for now
+│   └── note_book.py             # Note collection, search, tags and sorting
 │
 ├── cli/
 │   ├── parser.py               # shlex-based command parsing
 │   ├── command_registry.py     # Command metadata and command groups
 │   ├── command_helpers.py      # Prompt loops and command error handling
 │   ├── contact_commands.py     # Contact command handlers
+│   ├── note_commands.py        # Note command handlers
 │   ├── general_commands.py     # help / hello / exit
 │   └── view.py                 # Rich tables and terminal messages
 │
 └── storage/
-    └── storage.py              # Pickle save/load logic
+│   └── storage.py              # Pickle save/load logic
+│
+└── userdata/
+    └── assistant_data.pkl      # Local application data, created automatically
 ```
 
 A few implementation details:
