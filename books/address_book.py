@@ -41,19 +41,17 @@ class AddressBook(UserDict[str, Record]):
                 f"Unknown sort field. Choose one of: {', '.join(SEARCHABLE_FIELDS)}."
             )
 
-        records = list(self.data.values())
-        populated = [
-            record for record in records if record.sort_value(field) is not None
-        ]
-        missing = [record for record in records if record.sort_value(field) is None]
-
-        def sort_key(record: Record):
+        populated: list[tuple[str, Record]] = []
+        missing: list[Record] = []
+        for record in self.data.values():
             value = record.sort_value(field)
-            assert value is not None
-            return value
+            if value is None:
+                missing.append(record)
+            else:
+                populated.append((value, record))
 
-        populated.sort(key=sort_key, reverse=descending)
-        return populated + missing
+        populated.sort(key=lambda item: item[0], reverse=descending)
+        return [record for _, record in populated] + missing
 
     def delete(self, name: str) -> None:
         """Deletes a record by name"""

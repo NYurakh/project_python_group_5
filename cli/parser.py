@@ -3,7 +3,7 @@
 import shlex
 
 
-def parse_input(user_input):
+def parse_input(user_input: str) -> tuple[str, ...]:
     """Parse user input into command and arguments."""
 
     parts = shlex.split(user_input.strip())
@@ -13,4 +13,4 @@ def parse_input(user_input):
 
     command, *args = parts
 
-    return command.lower(), *args
+    return (command.lower(), *args)

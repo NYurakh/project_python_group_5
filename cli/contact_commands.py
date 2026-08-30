@@ -2,6 +2,7 @@
 
 from prompt_toolkit import prompt
 from rich import print as rprint
+from rich.console import RenderableType
 
 from app_context import AppContext
 from books.address_book import AddressBook
@@ -59,7 +60,7 @@ def prompt_for_phones(existing: list[Phone]) -> list[str]:
 
 # --- Contact commands ---------------------------------------------------------
 @command_error_handler
-def add_contact(args, context: AppContext):
+def add_contact(args: list[str], context: AppContext) -> RenderableType:
     """Adds a contact to the address book interactively."""
 
     book = context.address_book
@@ -104,7 +105,7 @@ def add_contact(args, context: AppContext):
 
 
 @command_error_handler
-def remove_contact(args, context: AppContext):
+def remove_contact(args: list[str], context: AppContext) -> RenderableType:
     """Removes a contact from the address book."""
 
     book = context.address_book
@@ -115,7 +116,7 @@ def remove_contact(args, context: AppContext):
 
 
 @command_error_handler
-def edit_contact(args, context: AppContext):
+def edit_contact(args: list[str], context: AppContext) -> RenderableType:
     """Edits an existing contact interactively, pre-filling current values."""
 
     book = context.address_book
@@ -179,7 +180,7 @@ def edit_contact(args, context: AppContext):
 
 
 @command_error_handler
-def edit_contact_phones(args, context: AppContext):
+def edit_contact_phones(args: list[str], context: AppContext) -> RenderableType:
     """Edits only the phone numbers of an existing contact."""
 
     book = context.address_book
@@ -198,7 +199,7 @@ def edit_contact_phones(args, context: AppContext):
 
 
 @command_error_handler
-def show_phone(args, context: AppContext):
+def show_phone(args: list[str], context: AppContext) -> RenderableType:
     """Shows a contact's phone numbers."""
 
     if not args:
@@ -210,7 +211,7 @@ def show_phone(args, context: AppContext):
 
 
 @command_error_handler
-def show_all(args, context: AppContext):
+def show_all(args: list[str], context: AppContext) -> RenderableType:
     """Returns all saved contacts, optionally sorted by a selected field."""
 
     book = context.address_book
@@ -245,7 +246,7 @@ def show_all(args, context: AppContext):
 
 
 @command_error_handler
-def search_contacts(args, context: AppContext):
+def search_contacts(args: list[str], context: AppContext) -> RenderableType:
     """Searches contacts by any field."""
 
     query = " ".join(args) if args else prompt_until_valid("Search query: ")
@@ -256,7 +257,9 @@ def search_contacts(args, context: AppContext):
 
 
 @command_error_handler
-def search_contact_by_field(args, context: AppContext):
+def search_contact_by_field(
+    args: list[str], context: AppContext
+) -> RenderableType:
     """Searches contacts only within a selected field."""
 
     def validate_field(value: str) -> None:
@@ -291,7 +294,7 @@ def search_contact_by_field(args, context: AppContext):
 
 
 @command_error_handler
-def birthdays(args, context: AppContext):
+def birthdays(args: list[str], context: AppContext) -> RenderableType:
     """Shows birthdays occurring within the requested number of days."""
 
     if len(args) > 1:

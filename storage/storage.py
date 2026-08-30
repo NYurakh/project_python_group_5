@@ -1,6 +1,8 @@
 """Save and load application state via pickle."""
 
 import pickle
+import warnings
+from datetime import datetime
 from pathlib import Path
 
 from app_context import AppContext
@@ -8,6 +10,19 @@ from books.address_book import AddressBook
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "userdata"
 DATA_FILE = DATA_DIR / "assistant_data.pkl"
+
+
+class StorageRecoveryWarning(UserWarning):
+    """Warns that unreadable persisted data was backed up and reset."""
+
+
+def _backup_corrupt_file(filename: Path) -> Path:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup = filename.with_name(
+        f"{filename.stem}.corrupt-{timestamp}{filename.suffix}"
+    )
+    filename.replace(backup)
+    return backup
 
 
 def save_data(
@@ -32,6 +47,15 @@ def load_data(
             data = pickle.load(file)
 
     except FileNotFoundError:
+        return AppContext()
+    except (EOFError, pickle.UnpicklingError) as exc:
+        backup = _backup_corrupt_file(filename)
+        warnings.warn(
+            f"Could not load saved data ({exc}). "
+            f"The unreadable file was moved to {backup}.",
+            StorageRecoveryWarning,
+            stacklevel=2,
+        )
         return AppContext()
 
     if isinstance(data, AppContext):

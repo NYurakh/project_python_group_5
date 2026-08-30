@@ -14,7 +14,7 @@ from cli.parser import parse_input
 from storage.storage import load_data, save_data
 
 
-def main():
+def main() -> None:
     """Run the assistant bot loop."""
 
     # Force UTF-8 on legacy Windows consoles, so Cyrillic UI text is rendered safely.

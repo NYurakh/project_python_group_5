@@ -1,5 +1,7 @@
 """CLI commands for working with notes."""
 
+from rich.console import RenderableType
+
 from app_context import AppContext
 from cli import view
 from cli.command_helpers import command_error_handler, prompt_until_valid
@@ -26,7 +28,7 @@ def _parse_tags(value: str) -> list[str]:
 
 # --- Note commands ------------------------------------------------------------
 @command_error_handler
-def add_note(args, context: AppContext):
+def add_note(args: list[str], context: AppContext) -> RenderableType:
     """Adds a note interactively."""
 
     if args:
@@ -54,7 +56,7 @@ def add_note(args, context: AppContext):
 
 
 @command_error_handler
-def show_note(args, context: AppContext):
+def show_note(args: list[str], context: AppContext) -> RenderableType:
     """Shows one note by identifier."""
 
     if len(args) > 1:
@@ -82,7 +84,7 @@ def show_note(args, context: AppContext):
 
 
 @command_error_handler
-def show_all_notes(args, context: AppContext):
+def show_all_notes(args: list[str], context: AppContext) -> RenderableType:
     """Shows all saved notes."""
 
     if args:
@@ -95,7 +97,7 @@ def show_all_notes(args, context: AppContext):
 
 
 @command_error_handler
-def search_notes(args, context: AppContext):
+def search_notes(args: list[str], context: AppContext) -> RenderableType:
     """Searches notes by title, text or user tags."""
 
     if args:
@@ -112,7 +114,7 @@ def search_notes(args, context: AppContext):
 
 
 @command_error_handler
-def remove_note(args, context: AppContext):
+def remove_note(args: list[str], context: AppContext) -> RenderableType:
     """Removes a note by identifier."""
 
     if len(args) > 1:
@@ -134,7 +136,7 @@ def remove_note(args, context: AppContext):
 
 
 @command_error_handler
-def edit_note(args, context: AppContext):
+def edit_note(args: list[str], context: AppContext) -> RenderableType:
     """Edits an existing note interactively."""
 
     if len(args) > 1:
@@ -182,7 +184,7 @@ def edit_note(args, context: AppContext):
 
 
 @command_error_handler
-def search_notes_by_tag(args, context: AppContext):
+def search_notes_by_tag(args: list[str], context: AppContext) -> RenderableType:
     """Searches notes by user tag."""
 
     if args:
@@ -199,7 +201,7 @@ def search_notes_by_tag(args, context: AppContext):
 
 
 @command_error_handler
-def sort_notes_by_tags(args, context: AppContext):
+def sort_notes_by_tags(args: list[str], context: AppContext) -> RenderableType:
     """Shows notes sorted alphabetically by tags."""
 
     if args:

@@ -1,7 +1,5 @@
 """Contact model with phone, email, address, birthday, search, and sort helpers."""
 
-from datetime import date
-
 from models.fields import Address, Birthday, Email, Name, Phone
 
 SEARCHABLE_FIELDS = ("name", "phone", "email", "address", "birthday")
@@ -106,7 +104,7 @@ class Record:
 
         return any(query.casefold() in value.casefold() for value in values[field])
 
-    def sort_value(self, field: str) -> str | date | None:
+    def sort_value(self, field: str) -> str | None:
         """Returns a normalized field value suitable for sorting."""
 
         values = {
@@ -114,7 +112,7 @@ class Record:
             "phone": self.phones[0].value if self.phones else None,
             "email": self.email.value.casefold() if self.email else None,
             "address": self.address.value.casefold() if self.address else None,
-            "birthday": self.birthday.value if self.birthday else None,
+            "birthday": self.birthday.value.isoformat() if self.birthday else None,
         }
         return values[field]
 

@@ -1,24 +1,29 @@
 """Shared prompting and error handling for CLI commands."""
 
 from functools import wraps
-from typing import Callable
+from typing import Callable, ParamSpec
 
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from rich import print as rprint
+from rich.console import RenderableType
 
 from cli import view
+
+P = ParamSpec("P")
 
 
 class CommandError(Exception):
     """An expected command failure that can be shown directly to the user."""
 
 
-def command_error_handler(func):
+def command_error_handler(
+    func: Callable[P, RenderableType],
+) -> Callable[P, RenderableType]:
     """Convert expected command exceptions into user-facing errors."""
 
     @wraps(func)
-    def inner(*args, **kwargs):
+    def inner(*args: P.args, **kwargs: P.kwargs) -> RenderableType:
         try:
             return func(*args, **kwargs)
         except (CommandError, ValueError) as exc:

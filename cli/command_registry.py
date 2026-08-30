@@ -1,4 +1,4 @@
-"""Command metadata and grouped command registry."""
+"""Bind command metadata to executable handlers."""
 
 from dataclasses import dataclass
 from typing import Callable
@@ -6,6 +6,7 @@ from typing import Callable
 from rich.console import RenderableType
 
 from app_context import AppContext
+from cli.command_catalog import COMMAND_SPECS, CommandName, CommandSpec
 from cli.contact_commands import (
     add_contact,
     birthdays,
@@ -29,107 +30,61 @@ from cli.note_commands import (
     sort_notes_by_tags,
 )
 
+CommandHandler = Callable[[list[str], AppContext], RenderableType]
+
 
 @dataclass(frozen=True)
 class Command:
-    """A CLI command's handler, usage hint, and description."""
+    """A command specification bound to its executable handler."""
 
-    handler: Callable[[list[str], AppContext], RenderableType]
+    handler: CommandHandler
     usage: str
     description: str
 
 
-# Registry metadata is shared by command dispatch, help output, and completion.
-GENERAL_COMMANDS: dict[str, Command] = {
-    "help": Command(help_command, "help", "Показати це меню"),
-    "exit": Command(close_command, "exit", "Вийти зі збереженням"),
-    "hello": Command(hello_command, "hello", "Привітання"),
+_HANDLER_BY_NAME: dict[CommandName, CommandHandler] = {
+    CommandName.HELP: help_command,
+    CommandName.EXIT: close_command,
+    CommandName.HELLO: hello_command,
+    CommandName.SHOW_ALL_CONTACTS: show_all,
+    CommandName.SHOW_CONTACT_PHONES: show_phone,
+    CommandName.SEARCH_CONTACTS: search_contacts,
+    CommandName.SEARCH_CONTACT_BY_FIELD: search_contact_by_field,
+    CommandName.ADD_CONTACT: add_contact,
+    CommandName.REMOVE_CONTACT: remove_contact,
+    CommandName.EDIT_CONTACT: edit_contact,
+    CommandName.EDIT_CONTACT_PHONES: edit_contact_phones,
+    CommandName.UPCOMING_BIRTHDAYS: birthdays,
+    CommandName.ADD_NOTE: add_note,
+    CommandName.SHOW_ALL_NOTES: show_all_notes,
+    CommandName.SHOW_NOTE: show_note,
+    CommandName.SEARCH_NOTES: search_notes,
+    CommandName.REMOVE_NOTE: remove_note,
+    CommandName.EDIT_NOTE: edit_note,
+    CommandName.SEARCH_NOTES_BY_TAG: search_notes_by_tag,
+    CommandName.SORT_NOTES_BY_TAGS: sort_notes_by_tags,
 }
 
-CONTACT_COMMANDS: dict[str, Command] = {
-    "show-all-contacts": Command(
-        show_all,
-        "show-all-contacts [поле]",
-        "Показати всі контакти з опціональним сортуванням",
-    ),
-    "show-contact-phones": Command(
-        show_phone,
-        "show-contact-phones [ім'я]",
-        "Показати телефони контакту",
-    ),
-    "search-contacts": Command(
-        search_contacts,
-        "search-contacts [текст]",
-        "Знайти контакти за будь-яким полем",
-    ),
-    "search-contact-by-field": Command(
-        search_contact_by_field,
-        "search-contact-by-field [поле] [значення]",
-        "Знайти контакти за конкретним полем",
-    ),
-    "add-contact": Command(add_contact, "add-contact", "Додати контакт"),
-    "remove-contact": Command(
-        remove_contact, "remove-contact [ім'я]", "Видалити контакт"
-    ),
-    "edit-contact": Command(edit_contact, "edit-contact [ім'я]", "Редагувати контакт"),
-    "edit-contact-phones": Command(
-        edit_contact_phones,
-        "edit-contact-phones [ім'я]",
-        "Редагувати телефони контакту",
-    ),
-    "upcoming-birthdays": Command(
-        birthdays, "upcoming-birthdays [дні]", "Найближчі дні народження"
-    ),
+COMMAND_HANDLERS: dict[str, CommandHandler] = {
+    name.value: _HANDLER_BY_NAME[name]
+    for name in CommandName
+    if name in _HANDLER_BY_NAME
 }
 
-NOTE_COMMANDS: dict[str, Command] = {
-    "add-note": Command(
-        add_note,
-        "add-note",
-        "Додати нотатку",
-    ),
-    "show-all-notes": Command(
-        show_all_notes,
-        "show-all-notes",
-        "Показати всі нотатки",
-    ),
-    "show-note": Command(
-        show_note,
-        "show-note [ID]",
-        "Показати нотатку",
-    ),
-    "search-notes": Command(
-        search_notes,
-        "search-notes [текст]",
-        "Знайти нотатки за назвою, тегами або текстом",
-    ),
-    "remove-note": Command(
-        remove_note,
-        "remove-note [ID]",
-        "Видалити нотатку",
-    ),
-    "edit-note": Command(
-        edit_note,
-        "edit-note [ID]",
-        "Редагувати нотатку",
-    ),
-    "search-notes-by-tag": Command(
-        search_notes_by_tag,
-        "search-notes-by-tag [тег]",
-        "Знайти нотатки за тегом",
-    ),
-    "sort-notes-by-tags": Command(
-        sort_notes_by_tags,
-        "sort-notes-by-tags",
-        "Сортувати нотатки за тегами",
-    ),
+
+def _bind_command(handler: CommandHandler, spec: CommandSpec) -> Command:
+    return Command(handler, spec.usage, spec.description)
+
+
+missing_handlers = set(COMMAND_SPECS) - set(COMMAND_HANDLERS)
+unknown_handlers = set(COMMAND_HANDLERS) - set(COMMAND_SPECS)
+if missing_handlers or unknown_handlers:
+    raise RuntimeError(
+        "Command catalog and handlers do not match: "
+        f"missing={sorted(missing_handlers)}, unknown={sorted(unknown_handlers)}"
+    )
+
+COMMANDS = {
+    name: _bind_command(COMMAND_HANDLERS[name], spec)
+    for name, spec in COMMAND_SPECS.items()
 }
-
-COMMANDS = GENERAL_COMMANDS | CONTACT_COMMANDS | NOTE_COMMANDS
-
-# Section order controls how the generated help menu is grouped.
-COMMAND_SECTIONS = (
-    ("General", tuple(GENERAL_COMMANDS)),
-    ("Contacts", tuple(CONTACT_COMMANDS)),
-    ("Notes", tuple(NOTE_COMMANDS)),
-)
