@@ -1,7 +1,5 @@
 """Models for working with notes."""
 
-from datetime import datetime
-
 
 class Note:
     """Represents one text note."""
@@ -23,7 +21,6 @@ class Note:
         self.title = title.strip()
         self.text = text.strip()
         self.tags = self._normalize_tags(tags or [])
-        self.updated_at = datetime.now()
 
     @staticmethod
     def _normalize_tags(tags: list[str]) -> list[str]:
@@ -59,8 +56,6 @@ class Note:
 
         if tags is not None:
             self.tags = self._normalize_tags(tags)
-
-        self.updated_at = datetime.now()
 
     def matches(self, query: str) -> bool:
         """Checks whether query occurs in the title, text or user tags."""

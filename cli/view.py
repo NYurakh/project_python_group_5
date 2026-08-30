@@ -92,7 +92,6 @@ def render_note_table(
     table.add_column("Title", max_width=24, overflow="fold")
     table.add_column("Text", max_width=50, overflow="fold")
     table.add_column("Tags", max_width=30, overflow="fold")
-    table.add_column("Updated", no_wrap=True)
 
     for note in notes:
         table.add_row(
@@ -100,7 +99,6 @@ def render_note_table(
             note.title,
             note.text,
             ", ".join(note.tags) or EMPTY,
-            note.updated_at.strftime("%d.%m.%Y %H:%M:%S"),
         )
 
     return table
