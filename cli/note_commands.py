@@ -42,6 +42,34 @@ def add_note(args, context: AppContext):
 
 
 @command_error_handler
+def show_note(args, context: AppContext):
+    """Shows one note by identifier."""
+
+    if len(args) > 1:
+        raise ValueError("The show-note command accepts only one ID.")
+
+    if args:
+        note_id = int(args[0])
+    else:
+        note_id = int(
+            prompt_until_valid(
+                "Note ID: ",
+                int,
+            )
+        )
+
+    note = context.note_book.find(note_id)
+
+    if note is None:
+        raise ValueError(f"Note #{note_id} not found.")
+
+    return view.render_note_table(
+        [note],
+        title=f"Note #{note_id}",
+    )
+
+
+@command_error_handler
 def show_all_notes(args, context: AppContext):
     """Shows all saved notes."""
 

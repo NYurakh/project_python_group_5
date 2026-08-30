@@ -26,6 +26,7 @@ from cli.note_commands import (
     search_notes,
     search_notes_by_tag,
     show_all_notes,
+    show_note,
     sort_notes_by_tags,
 )
 
@@ -93,6 +94,11 @@ NOTE_COMMANDS: dict[str, Command] = {
         show_all_notes,
         "show-all-notes",
         "Показати всі нотатки",
+    ),
+    "show-note": Command(
+        show_note,
+        "show-note [ID]",
+        "Показати нотатку",
     ),
     "search-notes": Command(
         search_notes,
