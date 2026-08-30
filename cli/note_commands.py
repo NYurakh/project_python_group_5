@@ -22,7 +22,7 @@ def _parse_tags(value: str) -> list[str]:
     if not value:
         return []
 
-    return [tag.strip() for tag in value.split(",") if tag.strip()]
+    return sorted([tag.strip() for tag in value.split(",") if tag.strip()], key=str.casefold,)
 
 
 @command_error_handler
