@@ -33,34 +33,40 @@ def main() -> None:
 
     session = PromptSession(completer=completer, complete_while_typing=False)
 
-    while True:
-        user_input = session.prompt(">>> ")
+    try:
+        while True:
+            user_input = session.prompt(">>> ")
 
-        try:
-            command, *args = parse_input(user_input)
-        except ValueError as exc:
+            try:
+                command, *args = parse_input(user_input)
+            except ValueError as exc:
+                console.print()
+                console.print(view.error(f"Invalid quoting: {exc}"))
+                continue
+
+            if not command:
+                continue
+
+            entry = COMMANDS.get(command)
+
+            if entry is None:
+                console.print()
+                console.print(invalid_command())
+                continue
+
+            result = entry.handler(args, context)
             console.print()
-            console.print(view.error(f"Invalid quoting: {exc}"))
-            continue
+            console.print(result)
 
-        if not command:
-            continue
+            save_data(context)
 
-        entry = COMMANDS.get(command)
-
-        if entry is None:
-            console.print()
-            console.print(invalid_command())
-            continue
-
-        result = entry.handler(args, context)
+            if command == "exit":
+                break
+    except KeyboardInterrupt:
         console.print()
-        console.print(result)
-
+        console.print("[yellow]Interrupted by user. Saving session...[/]")
         save_data(context)
-
-        if command == "exit":
-            break
+        console.print("[bold]Goodbye![/]")
 
 
 if __name__ == "__main__":
